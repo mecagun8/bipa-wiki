@@ -1,3 +1,20 @@
 @use "./variables.scss" as *;
 
 // put your custom CSS here!
+
+// 검색창 배경 불투명하게
+.search-container {
+  .search-bar {
+    background-color: var(--light) !important;
+    opacity: 1 !important;
+  }
+}
+
+// 검색 결과 팝업 배경 불투명
+#search-container {
+  .search-layout {
+    background-color: var(--light) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+}
