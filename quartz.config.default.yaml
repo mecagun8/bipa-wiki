@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: BIPA LLM Wiki
-  pageTitleSuffix: " | BIPA Wiki"
+  pageTitle: BIPA AI Lab Wiki
+  pageTitleSuffix: " | BIPA AI Lab"
   enableSPA: true
   enablePopovers: true
   analytics:
@@ -21,15 +21,15 @@ configuration:
       code: IBM Plex Mono
     colors:
       lightMode:
-        light: "#faf8f8"
-        lightgray: "#e5e5e5"
-        gray: "#b8b8b8"
-        darkgray: "#4e4e4e"
-        dark: "#2b2b2b"
-        secondary: "#284b63"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#fff23688"
+        light: "#eaf4fb"
+        lightgray: "#c8e6f5"
+        gray: "#7bb8d4"
+        darkgray: "#2c4a5a"
+        dark: "#1a2f3a"
+        secondary: "#1a7fa8"
+        tertiary: "#5bb8d4"
+        highlight: rgba(91, 184, 212, 0.2)
+        textHighlight: "#b3e5fc88"
       darkMode:
         light: "#161618"
         lightgray: "#393639"
@@ -196,8 +196,7 @@ plugins:
     enabled: true
     options:
       links:
-        GitHub: https://github.com/jackyzha0/quartz
-        Discord Community: https://discord.gg/cRFFHYye7t
+        GitHub: https://github.com/mecagun8/bipa-wiki
   - source: github:quartz-community/recent-notes
     enabled: false
   - source: github:quartz-community/spacer
