@@ -18,3 +18,27 @@
     opacity: 1 !important;
   }
 }
+
+// 하단 기관 로고 바
+body::after {
+  content: "";
+  display: block;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background-color: #ffffff;
+  border-top: 1px solid #c8e6f5;
+  background-image: url("/bipa-wiki/static/bipa-logo.png");
+  background-repeat: no-repeat;
+  background-position: right 24px center;
+  background-size: auto 36px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+// 하단 바 공간 확보
+footer {
+  margin-bottom: 64px;
+}
