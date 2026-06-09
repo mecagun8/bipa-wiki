@@ -106,6 +106,68 @@ export default (() => {
             return resource
           }
         })}
+        <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1/dist/3d-force-graph.min.js" defer></script>
+        <script dangerouslySetInnerHTML={{__html: `
+(function() {
+  function initLocalGraph() {
+    const slug = window.location.pathname.replace(/^\\/bipa-wiki\\//, '').replace(/\\/$/, '') || 'index';
+    if (slug === 'graph') return;
+    const rightSidebar = document.querySelector('.sidebar.right');
+    if (!rightSidebar) return;
+
+    const container = document.createElement('div');
+    container.id = 'local-3d-graph-container';
+    container.innerHTML = '<div class="local-graph-title">연결된 페이지</div><div id="local-3d-graph"></div>';
+    rightSidebar.prepend(container);
+
+    fetch('/bipa-wiki/static/contentIndex.json')
+      .then(r => r.json())
+      .then(index => {
+        if (!index[slug]) {
+          container.innerHTML += '<div class="local-graph-empty">연결된 페이지가 없습니다.</div>';
+          return;
+        }
+        const neighbors = new Set(index[slug].links || []);
+        // backlinks
+        Object.entries(index).forEach(([s, info]) => {
+          if (info.links && info.links.includes(slug)) neighbors.add(s);
+        });
+        neighbors.add(slug);
+
+        const nodes = [...neighbors].map(s => ({
+          id: s,
+          name: (index[s] && index[s].title) || s.split('/').pop(),
+          url: '/bipa-wiki/' + s,
+          isCurrent: s === slug
+        }));
+        const links = [];
+        neighbors.forEach(s => {
+          ((index[s] && index[s].links) || []).forEach(t => {
+            if (neighbors.has(t)) links.push({ source: s, target: t });
+          });
+        });
+
+        if (typeof ForceGraph3D === 'undefined') return;
+        ForceGraph3D()(document.getElementById('local-3d-graph'))
+          .graphData({ nodes, links })
+          .nodeLabel('name')
+          .nodeColor(n => n.isCurrent ? '#ffcc00' : '#5bb8d4')
+          .nodeVal(n => n.isCurrent ? 4 : 2)
+          .linkColor(() => 'rgba(91,184,212,0.4)')
+          .linkWidth(0.5)
+          .backgroundColor('#0d1b2a')
+          .width(document.getElementById('local-3d-graph').clientWidth || 280)
+          .height(240)
+          .onNodeClick(n => { window.location.href = n.url; });
+      });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLocalGraph);
+  } else {
+    setTimeout(initLocalGraph, 100);
+  }
+})();
+        `}} />
       </head>
     )
   }
