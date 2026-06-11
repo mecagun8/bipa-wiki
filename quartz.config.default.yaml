@@ -129,12 +129,7 @@ plugins:
       position: left
       priority: 50
   - source: github:quartz-community/graph
-    enabled: true
-    options:
-      fontSize: 1.2
-    layout:
-      position: right
-      priority: 10
+    enabled: false
   - source: github:quartz-community/search
     enabled: true
     layout:
@@ -199,6 +194,7 @@ plugins:
     options:
       links:
         GitHub: https://github.com/mecagun8/bipa-wiki
+        3D 그래프: https://mecagun8.github.io/bipa-wiki/graph
   - source: github:quartz-community/recent-notes
     enabled: false
   - source: github:quartz-community/spacer
