@@ -109,26 +109,59 @@ export default (() => {
         <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1/dist/3d-force-graph.min.js" defer></script>
         <script dangerouslySetInnerHTML={{__html: `
 (function() {
+  // 팝업 모달 생성
+  function createModal() {
+    if (document.getElementById('graph-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'graph-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10000;flex-direction:column;align-items:center;justify-content:center;';
+    modal.innerHTML = '<div style="position:relative;width:90vw;height:85vh;background:#0d1b2a;border-radius:12px;overflow:hidden;">' +
+      '<button id="graph-modal-close" style="position:absolute;top:12px;right:16px;z-index:1;background:rgba(91,184,212,0.3);border:none;color:#fff;font-size:20px;width:32px;height:32px;border-radius:50%;cursor:pointer;line-height:1;">×</button>' +
+      '<div id="local-3d-graph-modal"></div>' +
+    '</div>';
+    document.body.appendChild(modal);
+    document.getElementById('graph-modal-close').addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+  }
+
+  function buildGraph(el, nodes, links, width, height) {
+    if (typeof ForceGraph3D === 'undefined') return;
+    ForceGraph3D()(el)
+      .graphData({ nodes, links })
+      .nodeLabel('name')
+      .nodeColor(n => n.isCurrent ? '#ffcc00' : '#5bb8d4')
+      .nodeVal(n => n.isCurrent ? 4 : 2)
+      .linkColor(() => 'rgba(91,184,212,0.4)')
+      .linkWidth(0.5)
+      .backgroundColor('#0d1b2a')
+      .width(width)
+      .height(height)
+      .onNodeClick(n => { window.location.href = n.url; });
+  }
+
   function initLocalGraph() {
-    const slug = decodeURIComponent(window.location.pathname.replace(/^\/bipa-wiki\//, '').replace(/\/$/, '')) || 'index';
-    if (slug === 'graph') return;
+    // data-slug 속성으로 현재 페이지 slug 읽기 (URL 인코딩 문제 없음)
+    const slug = document.body.getAttribute('data-slug');
+    if (!slug || slug === 'graph') return;
+
     const rightSidebar = document.querySelector('.sidebar.right');
     if (!rightSidebar) return;
 
+    createModal();
+
     const container = document.createElement('div');
     container.id = 'local-3d-graph-container';
-    container.innerHTML = '<div class="local-graph-title">연결된 페이지</div><div id="local-3d-graph"></div>';
+    container.innerHTML = '<div class="local-graph-title">연결된 페이지 <span id="local-graph-expand" style="cursor:pointer;font-size:0.75rem;color:#7bb8d4;margin-left:6px;">⛶ 크게보기</span></div><div id="local-3d-graph"></div>';
     rightSidebar.prepend(container);
 
     fetch('/bipa-wiki/static/contentIndex.json')
       .then(r => r.json())
       .then(index => {
         if (!index[slug]) {
-          container.innerHTML += '<div class="local-graph-empty">연결된 페이지가 없습니다.</div>';
+          container.querySelector('#local-3d-graph').innerHTML = '<div class="local-graph-empty">연결된 페이지가 없습니다.</div>';
           return;
         }
         const neighbors = new Set(index[slug].links || []);
-        // backlinks
         Object.entries(index).forEach(([s, info]) => {
           if (info.links && info.links.includes(slug)) neighbors.add(s);
         });
@@ -147,20 +180,20 @@ export default (() => {
           });
         });
 
-        if (typeof ForceGraph3D === 'undefined') return;
-        ForceGraph3D()(document.getElementById('local-3d-graph'))
-          .graphData({ nodes, links })
-          .nodeLabel('name')
-          .nodeColor(n => n.isCurrent ? '#ffcc00' : '#5bb8d4')
-          .nodeVal(n => n.isCurrent ? 4 : 2)
-          .linkColor(() => 'rgba(91,184,212,0.4)')
-          .linkWidth(0.5)
-          .backgroundColor('#0d1b2a')
-          .width(document.getElementById('local-3d-graph').clientWidth || 280)
-          .height(240)
-          .onNodeClick(n => { window.location.href = n.url; });
+        const el = document.getElementById('local-3d-graph');
+        buildGraph(el, nodes, links, el.clientWidth || 280, 240);
+
+        // 크게보기 버튼
+        document.getElementById('local-graph-expand').addEventListener('click', () => {
+          const modal = document.getElementById('graph-modal');
+          const modalEl = document.getElementById('local-3d-graph-modal');
+          modalEl.innerHTML = '';
+          modal.style.display = 'flex';
+          buildGraph(modalEl, nodes, links, Math.round(window.innerWidth * 0.88), Math.round(window.innerHeight * 0.83));
+        });
       });
   }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLocalGraph);
   } else {
