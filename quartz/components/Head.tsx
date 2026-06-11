@@ -110,7 +110,7 @@ export default (() => {
         <script dangerouslySetInnerHTML={{__html: `
 (function() {
   function initLocalGraph() {
-    const slug = window.location.pathname.replace(/^\\/bipa-wiki\\//, '').replace(/\\/$/, '') || 'index';
+    const slug = decodeURIComponent(window.location.pathname.replace(/^\/bipa-wiki\//, '').replace(/\/$/, '')) || 'index';
     if (slug === 'graph') return;
     const rightSidebar = document.querySelector('.sidebar.right');
     if (!rightSidebar) return;
